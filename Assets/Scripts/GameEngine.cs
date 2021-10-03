@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,6 +25,8 @@ public class GameEngine : MonoBehaviour
     private bool hasStarted = false;
 
     public List<BalanceRegion> BalanceRegions = new List<BalanceRegion>();
+
+    Coroutine _coroutine;
     // Start is called before the first frame update
     void Start()
     {
@@ -78,6 +81,8 @@ public class GameEngine : MonoBehaviour
     {
         //NB (lac): it will never be false again after turning to true :)
         hasStarted |= PlayerController.HasInput();
+        if(_coroutine == null)
+            _coroutine = StartCoroutine("SetStance");
     }
 
     // Update is called once per frame
@@ -173,4 +178,17 @@ public class GameEngine : MonoBehaviour
         }
         throw new ApplicationException(String.Format("value {0} not available in any region", value));
     }
+
+    IEnumerator SetStance()
+    {
+        yield return new WaitForSeconds(5f);
+        int stance = UnityEngine.Random.Range(-1, 3);
+        if(stance >= 0)
+        {
+            Debug.Log("Changing stance");
+            PlayerController.SetStance(stance);
+        }
+        _coroutine = null;
+    }
+
 }

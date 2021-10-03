@@ -15,9 +15,12 @@ public class PlayerController : MonoBehaviour
     private int _life;
 
     int MaxLife = 100;
+    public List<SpriteRenderer> Stances;
+    private Animator _animator;
 
     private void Awake()
     {
+        _animator = GetComponent<Animator>();
         _input = GetComponent<IGameDataInput>();
     }
     void Start()
@@ -87,5 +90,15 @@ public class PlayerController : MonoBehaviour
     public bool HasInput()
     {
         return _input.InputLeft() || _input.InputRight();
+    }
+
+    public void SetStance(int stance)
+    {
+        if (stance == 0)
+            _animator.Play("MabuIdle");
+        else if (stance == 1)
+            _animator.Play("GongbuIdle");
+        else if (stance == 2)
+            _animator.Play("XabuIdle");
     }
 }
