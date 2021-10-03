@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,23 +17,13 @@ public class GameEngine : MonoBehaviour
     private int _previousDeltaDamage;
     public Text ScoreUI;
 
-    private float _initialTimeToHitInterval = 5f;
-    private float _timeToHitInterval = 5f;
+    private float _initialTimeToHitInterval = 3f;
+    private float _timeToHitInterval = 0f;
     private float _elapsedTimeToHit = 0f;
 
     private bool hasStarted = false;
 
-
-    class BalanceRegion
-    {
-        public int index;
-        public int minValue;
-        public int maxValue;
-        public int damage;
-        public int score;
-    }
-
-    List<BalanceRegion> BalanceRegions = new List<BalanceRegion>();
+    public List<BalanceRegion> BalanceRegions = new List<BalanceRegion>();
     // Start is called before the first frame update
     void Start()
     {
@@ -49,6 +40,8 @@ public class GameEngine : MonoBehaviour
         int validInterval = (int)(Balance.maxValue - 2 * minBalanceForHit);
 
         validInterval = validInterval / 3;
+
+        /*
 
         BalanceRegions = new List<BalanceRegion>()
         {
@@ -78,6 +71,7 @@ public class GameEngine : MonoBehaviour
                 damage = 1,
             },
         };
+        */
     }
 
     private void Update()
