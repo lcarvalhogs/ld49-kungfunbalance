@@ -26,7 +26,16 @@ public class GameEngine : MonoBehaviour
 
     public List<BalanceRegion> BalanceRegions = new List<BalanceRegion>();
 
+    public AudioClip HitAudio;
+    public AudioClip PowerUpAudio;
+    private AudioSource _audioSource;
+
     Coroutine _coroutine;
+
+    private void Awake()
+    {
+        _audioSource = GetComponent<AudioSource>();
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -81,8 +90,6 @@ public class GameEngine : MonoBehaviour
     {
         //NB (lac): it will never be false again after turning to true :)
         hasStarted |= PlayerController.HasInput();
-        if(_coroutine == null)
-            _coroutine = StartCoroutine("SetStance");
     }
 
     // Update is called once per frame
@@ -93,6 +100,10 @@ public class GameEngine : MonoBehaviour
             handleUpdateScoreUI();
             return;
         }
+
+        if (_coroutine == null)
+            _coroutine = StartCoroutine("SetStance");
+
         CalculateTimeHit(Time.fixedDeltaTime);
         handleCheckBalance(Time.fixedDeltaTime);
         handleUpdateScoreUI();
@@ -125,6 +136,11 @@ public class GameEngine : MonoBehaviour
         if (_elapsedTimeToHit > _timeToHitInterval)
         {
             PlayerController.TakeHit(PlayerController.MaxBalanceSpeed * 1);
+
+            // NB (lac): play hit sound
+            _audioSource.clip = HitAudio;
+            _audioSource.Play();
+
             _elapsedTimeToHit = 0f;
 
             //  NB (lac): decrease the interval, up to each second;
@@ -140,6 +156,11 @@ public class GameEngine : MonoBehaviour
         if (_previousDeltaDamage != deltaDamage)
         {
             PlayerController.TakeHit(PlayerController.MaxBalanceSpeed * 1);
+
+            // NB (lac): play hit sound
+            _audioSource.clip = HitAudio;
+            _audioSource.Play();
+
             // NB (lac): increase speed
             PlayerController.MaxBalanceSpeed -= 1;
             if (PlayerController.MaxBalanceSpeed <= 0)
@@ -183,10 +204,12 @@ public class GameEngine : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
         int stance = UnityEngine.Random.Range(-1, 3);
-        if(stance >= 0)
+        if(stance >= 0 && stance != PlayerController.GetPlayerStance())
         {
             Debug.Log("Changing stance");
             PlayerController.SetStance(stance);
+            _audioSource.clip = PowerUpAudio;
+            _audioSource.Play();
         }
         _coroutine = null;
     }
