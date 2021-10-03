@@ -61,8 +61,6 @@ public class PlayerController : MonoBehaviour
             _deltaBalance = -1 * _balanceSpeed;
         else if (_input.InputRight())
             _deltaBalance = 1 * _balanceSpeed;
-        else
-            _deltaBalance = 0;
 
         _balance += _deltaBalance;
         if (_balance < 0)

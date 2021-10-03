@@ -162,9 +162,9 @@ public class GameEngine : MonoBehaviour
 
         CalculateDamage(_regionTime, BalanceRegions[region].damage);
 
-        if(PlayerController.GetPlayerStance() == 0 && region == 1   // NB (lac): Mabu stance, middle region, 2/5
-            || PlayerController.GetPlayerStance() == 1 && region == 2   // NB (lac): Gongbu stance, middle region, 3/5
-            || PlayerController.GetPlayerStance() == 2 && region == 3   // NB (lac): Xabu stance, middle region, 4/5
+        if(PlayerController.GetPlayerStance() == 0 && region == 2   // NB (lac): Mabu stance, middle region, 3/5
+            || PlayerController.GetPlayerStance() == 1 && region == 3   // NB (lac): Gongbu stance, left region, 4/5
+            || PlayerController.GetPlayerStance() == 2 && region == 1   // NB (lac): Xabu stance, middle region, 2/5
             )
         {
             CalculateScore(_regionTime, BalanceRegions[region].score);
