@@ -45,6 +45,8 @@ public class GameEngine : MonoBehaviour
     public Text ScoreHSUI;
     public Text TotalTimeUI;
 
+    private float _totalTimePlayed;
+
     private void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
@@ -118,10 +120,14 @@ public class GameEngine : MonoBehaviour
             // NB (lac): update saved data
             if (_score > gd.GetMaxScore())
                 gd.SetMaxScore(_score);
+
+            if (_totalTimePlayed > gd.GetMaxTrainingTime())
+                gd.SetMaxTrainingTime((int)_totalTimePlayed);
             DataManagement.Save(gd);
 
             ScoreSUI.text = String.Format("Score: {0}", _score);
             ScoreHSUI.text = String.Format("Highscore: {0}", gd.GetMaxScore());
+            TotalTimeUI.text = String.Format("Training time: {0}", (int)_totalTimePlayed);
             _gameOver = true;
             GameOverPanelUI.SetActive(true);
         }
@@ -137,6 +143,8 @@ public class GameEngine : MonoBehaviour
             handleUpdateScoreUI();
             return;
         }
+
+        _totalTimePlayed += Time.fixedDeltaTime;
 
         if (_coroutine == null && hasStarted && !_gameOver)
             _coroutine = StartCoroutine("SetStance");
@@ -217,7 +225,17 @@ public class GameEngine : MonoBehaviour
         int deltaScore = (int)totalTime * baseScore;        
         if (_previousDeltaScore != deltaScore)
         {
-            _score += deltaScore;
+            Debug.Log(String.Format("TimeInZone:{0}", totalTime));
+            // NB (lac): limit score multiplier
+            if(deltaScore > 5)
+            {
+                _score += 5;
+            }
+            else
+            {
+                _score += deltaScore;
+            }
+            
             // NB (lac): increase speed
             PlayerController.IncreaseBalanceSpeed(1);
             _elapsedTimeToHit = 0f;
@@ -249,7 +267,15 @@ public class GameEngine : MonoBehaviour
 
     IEnumerator SetStance()
     {
-        yield return new WaitForSeconds(2f);
+        if(_totalTimePlayed > 60f)
+        {
+            yield return new WaitForSeconds(UnityEngine.Random.Range(1, 2));
+        }
+        else
+        {
+            yield return new WaitForSeconds(UnityEngine.Random.Range(3, 5));
+        }
+
         int stance = UnityEngine.Random.Range(-1, 3);
         //stance = 1;
         if (stance >= 0 && stance != PlayerController.GetPlayerStance() && !_gameOver && hasStarted)

@@ -6,10 +6,12 @@ namespace Assets.Scripts
     public class GameData
     {
         private int MaxScore;
+        private int MaxTrainingTime;
 
         public GameData()
         {
             MaxScore = 0;
+            MaxTrainingTime = 0;
         }
 
         public int GetMaxScore()
@@ -20,6 +22,16 @@ namespace Assets.Scripts
         public void SetMaxScore(int value)
         {
             MaxScore = value;
+        }
+
+        public int GetMaxTrainingTime()
+        {
+            return MaxTrainingTime;
+        }
+
+        public void SetMaxTrainingTime(int value)
+        {
+            MaxTrainingTime = value;
         }
     }
 

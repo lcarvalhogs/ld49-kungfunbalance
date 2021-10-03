@@ -2582,7 +2582,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &959673467
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2634,7 +2634,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Total time: 0'
+  m_Text: 'Total training time: 0'
 --- !u!222 &959673469
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5015,7 +5015,7 @@ MonoBehaviour:
   _KeyboarInput: {fileID: 1251080324}
   ScoreSUI: {fileID: 1773825820}
   ScoreHSUI: {fileID: 140615037}
-  TotalTimeUI: {fileID: 0}
+  TotalTimeUI: {fileID: 959673468}
 --- !u!4 &1790124774
 Transform:
   m_ObjectHideFlags: 0

@@ -52,7 +52,9 @@ public class PlayerController : MonoBehaviour
         Balance.maxValue = MAX_BALANCE;
         Balance.value = Balance.maxValue / 2;
 
-        _balance = Balance.value;
+        // TODO (lac): we are initializing the balance on a damage zone, to force the player to move!
+
+        _balance = 0;
     }
 
     void handleUpdateInputs()
