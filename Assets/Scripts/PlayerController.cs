@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    private const float MAX_BALANCE = 1000f;
+    private const int MAX_SPEED = 2;
     private IGameDataInput _input;
     public Slider Balance;
     public Slider Life;
@@ -14,9 +16,12 @@ public class PlayerController : MonoBehaviour
     private int _deltaBalance;
     private int _life;
 
-    int MaxLife = 100;
+    int MaxLife = 50;
     public List<SpriteRenderer> Stances;
     private Animator _animator;
+    private int _stance = 0;
+
+    private float _balance;
 
     private void Awake()
     {
@@ -31,9 +36,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GetLife() <= 0)
+            return;
         handleUpdateInputs();
         handleUpdateBalanceSpeed(Time.deltaTime);
-        handleUpdateBalanceUI();
+        handleUpdateBalanceUI(Time.deltaTime);
         handleLifUI();
     }
 
@@ -42,8 +49,10 @@ public class PlayerController : MonoBehaviour
         _life = MaxLife;
         Life.maxValue = MaxLife;
 
-        Balance.maxValue = 1000;
+        Balance.maxValue = MAX_BALANCE;
         Balance.value = Balance.maxValue / 2;
+
+        _balance = Balance.value;
     }
 
     void handleUpdateInputs()
@@ -52,6 +61,12 @@ public class PlayerController : MonoBehaviour
             _deltaBalance = -1 * _balanceSpeed;
         else if (_input.InputRight())
             _deltaBalance = 1 * _balanceSpeed;
+
+        _balance += _deltaBalance;
+        if (_balance < 0)
+            _balance = 0;
+        if (_balance > MAX_BALANCE)
+            _balance = MAX_BALANCE;
     }
 
     void handleUpdateBalanceSpeed(float elapsedTime)
@@ -62,9 +77,9 @@ public class PlayerController : MonoBehaviour
             _balanceSpeed -= 1;
     }
 
-    void handleUpdateBalanceUI()
+    void handleUpdateBalanceUI(float elapsedTime)
     {
-        Balance.value += _deltaBalance;
+        Balance.value = _balance;
     }
 
     void handleLifUI()
@@ -84,12 +99,12 @@ public class PlayerController : MonoBehaviour
 
     public int GetPlayerStance()
     {
-        return 0;
+        return _stance;
     }
 
     public bool HasInput()
     {
-        return _input.InputLeft() || _input.InputRight();
+        return _input.InputLeft() || _input.InputRight() || _input.InputStart();
     }
 
     public void SetStance(int stance)
@@ -100,5 +115,13 @@ public class PlayerController : MonoBehaviour
             _animator.Play("GongbuIdle");
         else if (stance == 2)
             _animator.Play("XabuIdle");
+        _stance = stance;
+    }
+
+    public void IncreaseBalanceSpeed(int v)
+    {
+        MaxBalanceSpeed += v;
+        if (MaxBalanceSpeed > MAX_SPEED)
+            MaxBalanceSpeed = MAX_SPEED;
     }
 }

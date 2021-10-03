@@ -21,6 +21,11 @@ public class KeyboardInput : MonoBehaviour, IGameDataInput
         return _input.InputRight;
     }
 
+    public bool InputStart()
+    {
+        return _input.InputStart;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -33,5 +38,14 @@ public class KeyboardInput : MonoBehaviour, IGameDataInput
             _input.InputRight = true;
         if (Input.GetKeyUp(KeyCode.RightArrow))
             _input.InputRight = false;
+        if(Input.GetKeyDown(KeyCode.Space))
+            _input.InputStart = true;
+        if (Input.GetKeyUp(KeyCode.Space))
+            _input.InputStart = false;
+    }
+
+    public void AutoPress()
+    {
+        _input.InputStart = true;
     }
 }

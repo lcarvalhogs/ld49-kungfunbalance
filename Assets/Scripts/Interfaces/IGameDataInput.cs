@@ -6,4 +6,5 @@ public interface IGameDataInput
 {
     bool InputLeft();
     bool InputRight();
+    bool InputStart();
 }

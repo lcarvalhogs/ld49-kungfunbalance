@@ -1,8 +1,10 @@
 ﻿using Assets.Scripts;
+using Assets.Scripts.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameEngine : MonoBehaviour
@@ -28,9 +30,20 @@ public class GameEngine : MonoBehaviour
 
     public AudioClip HitAudio;
     public AudioClip PowerUpAudio;
+    public AudioClip PickUpAudio;
     private AudioSource _audioSource;
 
     Coroutine _coroutine;
+
+    public GameObject StartPanelUI;
+    public GameObject GameOverPanelUI;
+    private bool _gameOver;
+
+    public KeyboardInput _KeyboarInput;
+
+    public Text ScoreSUI;
+    public Text ScoreHSUI;
+    public Text TotalTimeUI;
 
     private void Awake()
     {
@@ -44,16 +57,15 @@ public class GameEngine : MonoBehaviour
         PlayerController.Initialize();
 
         // NB (lac): 10%
-        float minBalanceForHit = 10 * Balance.maxValue / 100;
-
+        float minBalanceForHit = 10 * Balance.maxValue / 100;        
         // NB (lac): 90%
         float maxBalanceForHit = 9 * 10 * Balance.maxValue / 100;
+        Debug.Log(String.Format("minDeadZone:{0} / maxDeadZone:{1}", minBalanceForHit, maxBalanceForHit));
 
         int validInterval = (int)(Balance.maxValue - 2 * minBalanceForHit);
 
         validInterval = validInterval / 3;
 
-        /*
 
         BalanceRegions = new List<BalanceRegion>()
         {
@@ -83,25 +95,50 @@ public class GameEngine : MonoBehaviour
                 damage = 1,
             },
         };
-        */
+
+        foreach (BalanceRegion b in BalanceRegions)
+        {
+            Debug.Log(String.Format("region:{0}, min:{1}, max:{2}", b.index, b.minValue, b.maxValue));
+        }
     }
 
     private void Update()
     {
+        bool previousHasStarted = hasStarted;
         //NB (lac): it will never be false again after turning to true :)
         hasStarted |= PlayerController.HasInput();
+        if(previousHasStarted != hasStarted)
+        {
+            CloseStartPanel();
+        }
+
+        if (PlayerController.GetLife() <= 0 && !_gameOver)
+        {
+            GameData gd = DataManagement.Load();
+            // NB (lac): update saved data
+            if (_score > gd.GetMaxScore())
+                gd.SetMaxScore(_score);
+            DataManagement.Save(gd);
+
+            ScoreSUI.text = String.Format("Score: {0}", _score);
+            ScoreHSUI.text = String.Format("Highscore: {0}", gd.GetMaxScore());
+            _gameOver = true;
+            GameOverPanelUI.SetActive(true);
+        }
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (_gameOver)
+            return;
         if (!hasStarted)
         {
             handleUpdateScoreUI();
             return;
         }
 
-        if (_coroutine == null)
+        if (_coroutine == null && hasStarted && !_gameOver)
             _coroutine = StartCoroutine("SetStance");
 
         CalculateTimeHit(Time.fixedDeltaTime);
@@ -118,11 +155,17 @@ public class GameEngine : MonoBehaviour
             _regionTime += elapsedTime;
         }
         else
+        {
             _regionTime = 0f;
+            _previousDeltaScore = 0;
+        }   
 
         CalculateDamage(_regionTime, BalanceRegions[region].damage);
 
-        if(PlayerController.GetPlayerStance() == 0 && region == 2) // NB (lac): Mabu stance, middle region, 2/5
+        if(PlayerController.GetPlayerStance() == 0 && region == 1   // NB (lac): Mabu stance, middle region, 2/5
+            || PlayerController.GetPlayerStance() == 1 && region == 2   // NB (lac): Gongbu stance, middle region, 3/5
+            || PlayerController.GetPlayerStance() == 2 && region == 3   // NB (lac): Xabu stance, middle region, 4/5
+            )
         {
             CalculateScore(_regionTime, BalanceRegions[region].score);
         }
@@ -176,10 +219,14 @@ public class GameEngine : MonoBehaviour
         {
             _score += deltaScore;
             // NB (lac): increase speed
-            PlayerController.MaxBalanceSpeed += 1;
+            PlayerController.IncreaseBalanceSpeed(1);
             _elapsedTimeToHit = 0f;
             //  NB (lac): reset the timeToHit interval;
             _timeToHitInterval = _initialTimeToHitInterval;
+
+            // NB (lac): play hit sound
+            _audioSource.clip = PickUpAudio;
+            _audioSource.Play();
         }
         _previousDeltaScore = deltaScore;
     }
@@ -202,9 +249,10 @@ public class GameEngine : MonoBehaviour
 
     IEnumerator SetStance()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(2f);
         int stance = UnityEngine.Random.Range(-1, 3);
-        if(stance >= 0 && stance != PlayerController.GetPlayerStance())
+        //stance = 1;
+        if (stance >= 0 && stance != PlayerController.GetPlayerStance() && !_gameOver && hasStarted)
         {
             Debug.Log("Changing stance");
             PlayerController.SetStance(stance);
@@ -212,6 +260,18 @@ public class GameEngine : MonoBehaviour
             _audioSource.Play();
         }
         _coroutine = null;
+    }
+
+    public void CloseStartPanel()
+    {
+        StartPanelUI.SetActive(false);
+        hasStarted = true;
+        _KeyboarInput.AutoPress();
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene("SampleScene");
     }
 
 }

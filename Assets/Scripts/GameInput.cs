@@ -6,4 +6,5 @@ public class GameInput
 {
     public bool InputLeft;
     public bool InputRight;
+    public bool InputStart;
 }
